@@ -47,7 +47,7 @@ public class UsuarioValidations {
 
     @HandleAfterDelete
     public void usuarioAfterDelete(Usuario usuario){
-        restTemplate.delete("http://" + host + ":8081/cursousuario/deletebyusuarioid/" + usuario.getId());
+        restTemplate.delete("http://" + host + "/cursousuario/deletebyusuarioid/" + usuario.getId());
     }
 
   /* private void usuarioValidation(BindingResult result){

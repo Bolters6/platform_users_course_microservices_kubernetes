@@ -22,13 +22,13 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 RUN mkdir ./logs
 COPY --from=builder /app/msvc-usuarios/target/microservicio_usuarios-0.0.1-SNAPSHOT.jar usuarios.jar
-ARG PORT_APP=8081
-ENV PORT $PORT_APP
-ENV DB_HOST host.docker.internal:3306
-ENV DB_NAME usuariosdb
-ENV DB_USER root
-ENV DB_PASS mario639
-ENV REST_TEMPLATE_HOST host.docker.internal
+ARG PORT_APP=8080
+#ENV PORT $PORT_APP
+#ENV DB_HOST host.docker.internal:3306
+#ENV DB_NAME usuariosdb
+#ENV DB_USER root
+#ENV DB_PASS mario639
+#ENV REST_TEMPLATE_HOST host.docker.internal
 EXPOSE $PORT
 #PERO ES RECOMENDABLE QUE CUANDO HAY MUCHOS ENV CREAR MEJOR EL FILE .env del proyecto
 #ESTOS ARGUMENTOS SOLO SE PUEDEN PONER EN EL DOCKER FILE Y ES COMO CREAR VARIABLES PARA CUANDO REPITES MUCHO EN EL DOCKERFILE

@@ -57,12 +57,12 @@ public class CursoController {
                     estudiantesParaAñadir.add(estudiantesExtra.get(j));
                 }
                 estudiantesParaAñadir.replaceAll(this::checkCursoUsuario);
-                estudiantesParaAñadir.forEach(e -> {restTemplate.getForObject("http://" + host + ":8080/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
+                estudiantesParaAñadir.forEach(e -> {restTemplate.getForObject("http://" + host + "/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
                 cursoRepository.save(new Curso().setMaxUsuarios(curso.getMaxUsuarios()).setCursoUsuarios(new HashSet<>(estudiantesParaAñadir)).setNombre(curso.getNombre()).setClase(PasswordGenerator.shuffleString(PasswordGenerator.generateRandomStringWithCodeAtEnd(curso.getNombre(), 4))));
             }
             estudiantesExtra.forEach(curso.getCursoUsuarios()::remove);
         }
-        curso.getCursoUsuarios().stream().forEach(e -> {restTemplate.getForObject("http://" + host + ":8080/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
+        curso.getCursoUsuarios().stream().forEach(e -> {restTemplate.getForObject("http://" + host + "/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
         curso.setCursoUsuarios(curso.getCursoUsuarios().stream().map(this::checkCursoUsuario).collect(Collectors.toCollection(HashSet::new)));
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoRepository.save(curso));
     }
@@ -99,7 +99,7 @@ public class CursoController {
 
     @PostMapping(path = "/crearusuario")
     public ResponseEntity<UsuarioDTO> crearUsuario(@RequestBody UsuarioDTO usuarioDTO){
-        return restTemplate.postForEntity("http://" + host + ":8080/usuarios/", usuarioDTO, UsuarioDTO.class);
+        return restTemplate.postForEntity("http://" + host + "/usuarios/", usuarioDTO, UsuarioDTO.class);
     }
 
     @PatchMapping(path = "/addusuarioacurso/{usuarioId}/{cursoId}")
@@ -114,7 +114,7 @@ public class CursoController {
         if(cursoOptional.get().getCursoUsuarios().stream().anyMatch(cursoUsuario -> cursoUsuario.getUsuarioId() == usuarioId)){
             throw new CursoException(Error.USUARIO_EXISTENTE_EN_ESTE_CURSO);
         }
-        restTemplate.getForEntity("http://" + host + ":8080/usuarios/" +  usuarioId, UsuarioDTO.class);
+        restTemplate.getForEntity("http://" + host + "/usuarios/" +  usuarioId, UsuarioDTO.class);
         cursoOptional.get().getCursoUsuarios().add(checkCursoUsuario(new CursoUsuario().setUsuarioId(usuarioId)));
         return ResponseEntity.ok().body("Usuario Añadido al Curso");
     }
@@ -147,7 +147,7 @@ public class CursoController {
         return cursoOptional.orElseThrow(() -> new CursoException(Error.CURSO_NO_EXISTENTE))
                 .getCursoUsuarios()
                 .stream()
-                .map(cursoUsuario -> restTemplate.getForObject("http://" + host + ":8080/usuarios/" + cursoUsuario.getUsuarioId(), UsuarioDTO.class))
+                .map(cursoUsuario -> restTemplate.getForObject("http://" + host + "/usuarios/" + cursoUsuario.getUsuarioId(), UsuarioDTO.class))
                 .collect(Collectors.toList());
     }
     private void cursoValidation(BindingResult result){
