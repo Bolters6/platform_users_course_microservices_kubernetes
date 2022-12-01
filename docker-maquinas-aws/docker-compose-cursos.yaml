@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  mysql82:
+    container_name: mysql82
+    image: mysql:8
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mario639  #estos environment los consigues en la pagina de docker hub para estas imagenes de base de datos de docker
+      MYSQL_DATABASE: cursosdb
+    volumes:
+      - data-mysql2:/var/lib/mysql2
+    restart: always
+    networks:
+      - spring
+  msvc-cursos:
+    container_name: msvc-cursos
+    image: bolters/ms-cursos:0.0.1
+#    build:
+#      context: ./
+#      dockerfile: ./msvc-cursos/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      PORT: 8081
+      DB_HOST: mysql82
+      DB_NAME: cursosdb
+      DB_USER: root
+      DB_PASS: mario639
+      REST_TEMPLATE_HOST: ec2-34-227-111-196.compute-1.amazonaws.com:8080
+    networks:
+      - spring
+    depends_on:
+      - mysql82
+    restart: always
+volumes:
+  data-mysql2:
+    name: data-mysql2
+networks:
+  spring:
+    name: spring

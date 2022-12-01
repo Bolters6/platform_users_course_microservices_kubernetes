@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  mysql81:
+    container_name: mysql81
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mario639  #estos environment los consigues en la pagina de docker hub para estas imagenes de base de datos de docker
+      MYSQL_DATABASE: usuariosdb
+    volumes:
+      - data-mysql1:/var/lib/mysql1
+    restart: always
+    networks:
+      - spring
+  msvc-usuarios:
+    container_name: msvc-usuarios
+    image: bolters/ms-usuarios:0.0.1
+#    build:
+#      context: ./
+#      dockerfile: ./msvc-usuarios/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      DB_HOST: mysql81
+      DB_NAME: usuariosdb
+      DB_USER: root
+      DB_PASS: mario639
+      REST_TEMPLATE_HOST: ec2-44-212-4-116.compute-1.amazonaws.com:8081
+    - networks:
+      - spring
+    depends_on:
+      - mysql81
+    restart: always
+volumes:
+  data-mysql1:
+    name: data-mysql1
+networks:
+  spring:
+    name: spring
