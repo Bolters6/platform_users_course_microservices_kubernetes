@@ -4,7 +4,7 @@
 #EXPOSE 8081
 #ENTRYPOINT["java", "-jar", "cursos.jar"]
 #PACKAGE STAGE
-FROM maven:3.8.4-openjdk-17-slim as builder
+FROM maven:3.8.6-openjdk-17 as builder
 
 WORKDIR /app/msvc-cursos
 
@@ -17,7 +17,7 @@ COPY ../microservicio_cursos/src ./src
 RUN mvn clean install -DskipTests
 
 #BUILD STAGE
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17
 
 WORKDIR /app
 RUN mkdir ./logs

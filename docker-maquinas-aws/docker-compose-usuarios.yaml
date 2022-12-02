@@ -28,7 +28,7 @@ services:
       DB_USER: root
       DB_PASS: mario639
       REST_TEMPLATE_HOST: ec2-44-212-4-116.compute-1.amazonaws.com:8081
-    - networks:
+    networks:
       - spring
     depends_on:
       - mysql81
