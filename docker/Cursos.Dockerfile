@@ -4,7 +4,7 @@
 #EXPOSE 8081
 #ENTRYPOINT["java", "-jar", "cursos.jar"]
 #PACKAGE STAGE
-FROM maven:3.8.6-openjdk-17 as builder
+FROM maven:3.8.6-openjdk-18 as builder
 
 WORKDIR /app/msvc-cursos
 

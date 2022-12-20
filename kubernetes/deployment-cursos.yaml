@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msvc-cursos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msvc-cursos
+  template:
+    metadata:
+      labels:
+        app: msvc-cursos
+    spec:
+      containers:
+        - name: cursos
+          image: bolters/cursos:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: PORT
+              value: "8081"
+            - name: DB_HOST
+              value: "mysql82:3306"
+            - name: DB_NAME
+              value: cursosdb
+            - name: DB_USER
+              value: root
+            - name: DB_PASS
+              value: mario639
+            - name: REST_TEMPLATE_HOST
+              value: "msvc-usuarios:8080"
