@@ -30,17 +30,17 @@ spec:
                   key: db_host
             - name: DB_NAME
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: msvc-cursos
                   key: db_name
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: msvc-cursos
-                  key: db_name
+                  key: db_user
             - name: DB_PASS
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: msvc-cursos
                   key: db_pass
             - name: REST_TEMPLATE_HOST

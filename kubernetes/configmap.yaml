@@ -33,8 +33,25 @@ metadata:
   name: msvc-cursos
 data:
   port: "8081"
-  db_host: "mysql82:5432"
+  db_host: "mysql82:3306"
   db_name: cursosdb
 #  db_user: root
 #  db_pass: mario639
   rest_template_host: "msvc-usuarios"
+  application.yaml: |-
+    config:
+      texto: Configurando ambiente por defecto
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: dev
+    config:
+      texto: Configurando ambiente de desarrollo
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: prod
+    config:
+      texto: Configurando ambiente de produccion
