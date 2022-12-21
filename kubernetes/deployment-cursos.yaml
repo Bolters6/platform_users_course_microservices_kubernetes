@@ -19,14 +19,34 @@ spec:
             - containerPort: 8081
           env:
             - name: PORT
-              value: "8081"
+              valueFrom: #tambien si no tiene configMap y solo quieres poner una variable de ambiente directo pones value: <valor deseado> y listo
+                configMapKeyRef: #o tambien puedo poner variables de ambiente donde el valor lo busco en cualquier otro archivo yaml de kubernetes, ejemplo en la respectiva carpeta del curso
+                  name: msvc-cursos
+                  key: port
             - name: DB_HOST
-              value: "mysql82:3306"
+              valueFrom:
+                configMapKeyRef:
+                  name: msvc-cursos
+                  key: db_host
             - name: DB_NAME
-              value: cursosdb
+              valueFrom:
+                secretKeyRef:
+                  name: msvc-cursos
+                  key: db_name
             - name: DB_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: msvc-cursos
+                  key: db_name
             - name: DB_PASS
-              value: mario639
+              valueFrom:
+                configMapKeyRef:
+                  name: msvc-cursos
+                  key: db_pass
             - name: REST_TEMPLATE_HOST
-              value: "msvc-usuarios:8080"
+              valueFrom:
+                configMapKeyRef:
+                  name: msvc-cursos
+                  key: rest_template_host
+            - name: PROFILE
+              value: dev

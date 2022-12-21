@@ -10,6 +10,7 @@ import microserviesplatform.microservicio_cursos.repositories.CursoUsuarioReposi
 import microserviesplatform.microservicio_cursos.utility.Error;
 import microserviesplatform.microservicio_cursos.utility.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -37,6 +38,7 @@ public class CursoController {
 
     @Value("${rest.host}")
     private String host;
+    private final Environment env;
 
     @PostMapping(path = "/create")
     public ResponseEntity<Curso> createCurso(@Valid @RequestBody Curso curso, BindingResult bindingResult) throws CursoException {
@@ -99,6 +101,7 @@ public class CursoController {
 
     @PostMapping(path = "/crearusuario")
     public ResponseEntity<UsuarioDTO> crearUsuario(@RequestBody UsuarioDTO usuarioDTO){
+        System.out.println(env.getProperty("PROFILE") + ": " + env.getProperty("config.texto"));
         return restTemplate.postForEntity("http://" + host + "/usuarios/", usuarioDTO, UsuarioDTO.class);
     }
 

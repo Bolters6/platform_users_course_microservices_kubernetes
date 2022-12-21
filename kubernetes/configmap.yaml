@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msvc-usuarios
+data:
+  port: "8080"
+  db_host: "mysql8:3306"
+  db_name: usersdb
+#  db_user: root quitados porque estan en el secret que es como un configMap pero con info sensible que quieres tener encriptada
+#  db_pass: mario639
+  rest_template_host: "msvc-cursos"
+  application.yaml: |-
+    config:
+      texto: Configurando ambiente por defecto
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: dev
+    config:
+      texto: Configurando ambiente de desarrollo
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: prod
+    config:
+      texto: Configurando ambiente de produccion
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msvc-cursos
+data:
+  port: "8081"
+  db_host: "mysql82:5432"
+  db_name: cursosdb
+#  db_user: root
+#  db_pass: mario639
+  rest_template_host: "msvc-usuarios"
