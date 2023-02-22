@@ -6,7 +6,9 @@ data:
   port: "8080"
   db_host: "mysql8:3306"
   db_name: usersdb
-#  db_user: root quitados porque estan en el secret que es como un configMap pero con info sensible que quieres tener encriptada
+  lb_auth_issuer_uri: http://host.docker.internal:9000
+  lb_usuarios_uri: http://host.docker.internal:8080
+  #  db_user: root quitados porque estan en el secret que es como un configMap pero con info sensible que quieres tener encriptada
 #  db_pass: mario639
   rest_template_host: "msvc-cursos"
   application.yaml: |-

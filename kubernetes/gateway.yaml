@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: msvc-gateway
-          image: aguzf/gateway:latest
+          image: bolters/gateway:latest
           ports:
             - containerPort: 8090
 ---

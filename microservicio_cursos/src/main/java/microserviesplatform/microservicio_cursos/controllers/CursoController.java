@@ -11,8 +11,7 @@ import microserviesplatform.microservicio_cursos.utility.Error;
 import microserviesplatform.microservicio_cursos.utility.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -41,7 +40,7 @@ public class CursoController {
     private final Environment env;
 
     @PostMapping(path = "/create")
-    public ResponseEntity<Curso> createCurso(@Valid @RequestBody Curso curso, BindingResult bindingResult) throws CursoException {
+    public ResponseEntity<Curso> createCurso(@Valid @RequestBody Curso curso, BindingResult bindingResult, @RequestHeader(value = "Authorization") String token) throws CursoException {
 
         cursoValidation(bindingResult);
         curso.setClase(PasswordGenerator.shuffleString(PasswordGenerator.generateRandomStringWithCodeAtEnd(curso.getNombre(), 4)));
@@ -49,7 +48,9 @@ public class CursoController {
         if(cursoRepository.existsByNombreAndClase(curso.getNombre(), curso.getClase())){
             throw new CursoException(Error.CURSO_EXISTENTE);
         }
-
+        HttpHeaders header = new HttpHeaders();
+        header.add("Authorization", token);
+        HttpEntity<String> entity = new HttpEntity<>(header);
         if(curso.getCursoUsuarios().size() > curso.getMaxUsuarios()){
             int cursosExtra = Math.round((float) (curso.getCursoUsuarios().size() - curso.getMaxUsuarios()) / curso.getMaxUsuarios());
             List<CursoUsuario> estudiantesExtra = curso.getCursoUsuarios().stream().skip(curso.getMaxUsuarios()).toList();
@@ -59,12 +60,12 @@ public class CursoController {
                     estudiantesParaAñadir.add(estudiantesExtra.get(j));
                 }
                 estudiantesParaAñadir.replaceAll(this::checkCursoUsuario);
-                estudiantesParaAñadir.forEach(e -> {restTemplate.getForObject("http://" + host + "/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
+                estudiantesParaAñadir.forEach(e -> {restTemplate.exchange("http://" + host + "/usuarios/" + e.getUsuarioId() ,HttpMethod.GET, entity, UsuarioDTO.class);});
                 cursoRepository.save(new Curso().setMaxUsuarios(curso.getMaxUsuarios()).setCursoUsuarios(new HashSet<>(estudiantesParaAñadir)).setNombre(curso.getNombre()).setClase(PasswordGenerator.shuffleString(PasswordGenerator.generateRandomStringWithCodeAtEnd(curso.getNombre(), 4))));
             }
             estudiantesExtra.forEach(curso.getCursoUsuarios()::remove);
         }
-        curso.getCursoUsuarios().stream().forEach(e -> {restTemplate.getForObject("http://" + host + "/usuarios/" + e.getUsuarioId() , UsuarioDTO.class);});
+        curso.getCursoUsuarios().stream().forEach(e -> {restTemplate.exchange("http://" + host + "/usuarios/" + e.getUsuarioId() ,HttpMethod.GET, entity, UsuarioDTO.class);});
         curso.setCursoUsuarios(curso.getCursoUsuarios().stream().map(this::checkCursoUsuario).collect(Collectors.toCollection(HashSet::new)));
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoRepository.save(curso));
     }
@@ -100,13 +101,16 @@ public class CursoController {
     }
 
     @PostMapping(path = "/crearusuario")
-    public ResponseEntity<UsuarioDTO> crearUsuario(@RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<UsuarioDTO> crearUsuario(@RequestBody UsuarioDTO usuarioDTO, @RequestHeader(value = "Authorization") String token){
+        HttpHeaders header = new HttpHeaders();
+        header.add("Authorization", token);
+        HttpEntity<UsuarioDTO> entity = new HttpEntity<>(usuarioDTO, header);
         System.out.println(env.getProperty("PROFILE") + ": " + env.getProperty("config.texto"));
-        return restTemplate.postForEntity("http://" + host + "/usuarios/", usuarioDTO, UsuarioDTO.class);
+        return restTemplate.exchange("http://" + host + "/usuarios/", HttpMethod.POST, entity, UsuarioDTO.class);
     }
 
     @PatchMapping(path = "/addusuarioacurso/{usuarioId}/{cursoId}")
-    public ResponseEntity<?> addUsuarioACurso(@PathVariable Long usuarioId, @PathVariable Long cursoId) throws CursoException {
+    public ResponseEntity<?> addUsuarioACurso(@PathVariable Long usuarioId, @PathVariable Long cursoId, @RequestHeader(value = "Authorization") String token) throws CursoException {
         Optional<Curso> cursoOptional = cursoRepository.findById(cursoId);
         if(cursoOptional.isEmpty()){
             throw new CursoException(Error.CURSO_NO_EXISTENTE);
@@ -117,7 +121,10 @@ public class CursoController {
         if(cursoOptional.get().getCursoUsuarios().stream().anyMatch(cursoUsuario -> cursoUsuario.getUsuarioId() == usuarioId)){
             throw new CursoException(Error.USUARIO_EXISTENTE_EN_ESTE_CURSO);
         }
-        restTemplate.getForEntity("http://" + host + "/usuarios/" +  usuarioId, UsuarioDTO.class);
+        HttpHeaders header = new HttpHeaders();
+        header.add("Authorization", token);
+        HttpEntity<String> entity = new HttpEntity<>(header);
+        restTemplate.exchange("http://" + host + "/usuarios/" +  usuarioId,HttpMethod.GET, entity, UsuarioDTO.class).getBody();
         cursoOptional.get().getCursoUsuarios().add(checkCursoUsuario(new CursoUsuario().setUsuarioId(usuarioId)));
         return ResponseEntity.ok().body("Usuario Añadido al Curso");
     }
@@ -145,12 +152,15 @@ public class CursoController {
     }
 
     @GetMapping(path = "/usuariosporcurso")
-    public List<UsuarioDTO> usuariosPorCurso(@PathVariable  Long id) throws CursoException {
+    public List<UsuarioDTO> usuariosPorCurso(@PathVariable  Long id, @RequestHeader(value = "Authorization") String token) throws CursoException {
         Optional<Curso> cursoOptional = cursoRepository.findById(id);
+        HttpHeaders header = new HttpHeaders();
+        header.add("Authorization", token);
+        HttpEntity<String> entity = new HttpEntity<>(header);
         return cursoOptional.orElseThrow(() -> new CursoException(Error.CURSO_NO_EXISTENTE))
                 .getCursoUsuarios()
                 .stream()
-                .map(cursoUsuario -> restTemplate.getForObject("http://" + host + "/usuarios/" + cursoUsuario.getUsuarioId(), UsuarioDTO.class))
+                .map(cursoUsuario -> restTemplate.exchange("http://" + host + "/usuarios/" + cursoUsuario.getUsuarioId(), HttpMethod.GET, entity, UsuarioDTO.class).getBody())
                 .collect(Collectors.toList());
     }
     private void cursoValidation(BindingResult result){

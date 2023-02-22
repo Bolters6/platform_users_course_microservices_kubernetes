@@ -13,6 +13,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +27,7 @@ public class UsuarioValidations {
 
     private final UsuarioRepository usuarioRepository;
     private final RestTemplate restTemplate;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Value("${rest.host}")
     private String host;
@@ -38,12 +40,13 @@ public class UsuarioValidations {
         if(usuarioRepository.existsByEmail(usuario.getEmail())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ya existente");
         }
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
     }
 
 
     @HandleBeforeSave
     public void usuarioBeforeSave(@Valid Usuario usuario){
-
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
     }
 
     @HandleAfterDelete

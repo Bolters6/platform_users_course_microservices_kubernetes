@@ -6,10 +6,7 @@ import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -32,7 +29,7 @@ public class Usuario implements Serializable {
     @Email(message = "Formato email incorrecto")
     private String email;
     @NotBlank(message = "password debe existir")
-    @Min(message = "password de 4 caracteres minimo", value = 4)
+    @Size(message = "password de 4 caracteres minimo", min = 4)
     private String password;
     @NotNull
     @DateTimeFormat(pattern = "dd/MM/yyyy")
